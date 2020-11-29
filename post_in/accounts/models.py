@@ -21,8 +21,3 @@ class UserProfile(models.Model):
             return f"{self.first_name} {self.last_name}"
         else:
             return self.username
-
-    """
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-    """
