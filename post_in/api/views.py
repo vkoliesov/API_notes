@@ -1,24 +1,38 @@
 from django.shortcuts import render
+from django.contrib.auth import get_user_model
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status, mixins, generics
 from rest_framework.views import APIView
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 
 from notes.models import Note
-from api.serializers import NoteSerializer, ThinNoteSerializer
+from api.serializers import NoteSerializer, ThinNoteSerializer, UserSerializer
+from api.permissions import IsAuthorOrReadOnly
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    model = get_user_model()
+    queryset = model.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (permissions.IsAdminUser, )
 
 
 class NoteViewSet(viewsets.ModelViewSet):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
+    # http_method_names = ['get', 'post', 'put', 'delete']
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def list(self, request, *args, **kwargs):
         notes = Note.objects.all()
         context = {'request': request}
         serializer = ThinNoteSerializer(notes, many=True, context=context)
         return Response(serializer.data)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 # class NoteListView(generics.ListCreateAPIView):
 #     queryset = Note.objects.all()

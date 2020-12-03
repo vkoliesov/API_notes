@@ -7,6 +7,7 @@ from api import views
 
 router = routers.DefaultRouter()
 router.register('notes', views.NoteViewSet, basename='notes')
+router.register('users', views.UserViewSet, basename='users')
 
 urlpatterns = router.urls
 
